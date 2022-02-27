@@ -49,11 +49,11 @@ func pixelToASCII(pixel color.Color) rune {
 }
 
 func imageToAscii(width, height uint, p termenv.Profile, img image.Image) string {
-	rawCharValues := make([]string, 0, int(width*height+width))
+	str := strings.Builder{}
+
 	for i := 0; i < int(height); i++ {
 		for j := 0; j < int(width); j++ {
 			pixel := color.NRGBAModel.Convert(img.At(j, i))
-
 			s := termenv.String(string(pixelToASCII(pixel)))
 
 			_, _, _, a := col.RGBA()
@@ -62,12 +62,12 @@ func imageToAscii(width, height uint, p termenv.Profile, img image.Image) string
 			} else {
 				s = s.Foreground(p.FromColor(pixel))
 			}
-			rawCharValues = append(rawCharValues, s.String())
+			str.WriteString(s.String())
 		}
-		rawCharValues = append(rawCharValues, "\n")
+		str.WriteString("\n")
 	}
 
-	return strings.Join(rawCharValues, "")
+	return str.String()
 }
 
 func imageToANSI(width, height uint, p termenv.Profile, img image.Image) string {

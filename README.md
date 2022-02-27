@@ -7,10 +7,14 @@ Displays your webcam... on the terminal
 ```bash
 $ asciicam
 
-$ asciicam -device=/dev/video0
+# use a specific camera device
+$ asciicam -dev=/dev/video0
 
 # set output width (0 means auto-detection)
 $ asciicam -width=80 -height=60
+
+# monochrome output
+$ asciicam -color "#00ff00"
 
 # use ANSI output
 $ asciicam -ansi=true
@@ -20,4 +24,10 @@ $ asciicam -gen=true -sample bgdata/
 
 # enable virtual greenscreen (requires sample data)
 $ asciicam -greenscreen=true -sample bgdata/
+
+# set greenscreen threshold
+$ asciicam -greenscreen=true -sample bgdata/ -threshold=0.12
+
+# show FPS counter
+$ asciicam -fps=true
 ```

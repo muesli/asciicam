@@ -92,32 +92,34 @@ func imageToANSI(width, height uint, p termenv.Profile, img image.Image) string 
 	return str.String()
 }
 
-func greenscreen(img *image.RGBA, bg []image.Image, dist float64) {
-	for _, v := range bg {
-		/*
-			if img.Bounds().Size().Y != v.Bounds().Size().Y {
-				panic(nil)
-			}
-			if img.Bounds().Size().X != v.Bounds().Size().X {
-				panic(nil)
-			}
-		*/
+func greenscreen(img *image.RGBA, bg image.Image, dist float64) {
+	if bg == nil {
+		return
+	}
 
-		for y := 0; y < img.Bounds().Size().Y; y++ {
-			for x := 0; x < img.Bounds().Size().X; x++ {
-				c1, _ := colorful.MakeColor(img.At(x, y))
-				c2, _ := colorful.MakeColor(v.At(x, y))
+	/*
+		if img.Bounds().Size().Y != v.Bounds().Size().Y {
+			panic(nil)
+		}
+		if img.Bounds().Size().X != v.Bounds().Size().X {
+			panic(nil)
+		}
+	*/
 
-				/*
-					add face detection?
-					if (x > 42 && x < 78) && (y > 5 && y < 40) {
-						continue
-					}
-				*/
+	for y := 0; y < img.Bounds().Size().Y; y++ {
+		for x := 0; x < img.Bounds().Size().X; x++ {
+			c1, _ := colorful.MakeColor(img.At(x, y))
+			c2, _ := colorful.MakeColor(bg.At(x, y))
 
-				if c1.DistanceLab(c2) < dist {
-					img.Set(x, y, image.Transparent)
+			/*
+				add face detection?
+				if (x > 42 && x < 78) && (y > 5 && y < 40) {
+					continue
 				}
+			*/
+
+			if c1.DistanceLab(c2) < dist {
+				img.Set(x, y, image.Transparent)
 			}
 		}
 	}

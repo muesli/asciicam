@@ -53,7 +53,7 @@ func run(ctx context.Context) error {
 	sample := flag.String("sample", "bgsample", "Where to find/store the sample data")
 	gen := flag.Bool("gen", false, "Generate a new background")
 	screen := flag.Bool("greenscreen", false, "Use greenscreen")
-	screenDist := flag.Float64("threshold", 0.10, "Greenscreen threshold")
+	screenDist := flag.Float64("threshold", 0.13, "Greenscreen threshold")
 	ansi := flag.Bool("ansi", false, "Use ANSI")
 	usecol := flag.String("color", "", "Use single color")
 	w := flag.Uint("width", 0, "output width")

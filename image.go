@@ -97,8 +97,17 @@ func imageToANSI(width, height uint, img image.Image) string {
 	return str.String()
 }
 
-func greenscreen(img *image.RGBA, bg []image.Image) {
+func greenscreen(img *image.RGBA, bg []image.Image, dist float64) {
 	for _, v := range bg {
+		/*
+			if img.Bounds().Size().Y != v.Bounds().Size().Y {
+				panic(nil)
+			}
+			if img.Bounds().Size().X != v.Bounds().Size().X {
+				panic(nil)
+			}
+		*/
+
 		for y := 0; y < img.Bounds().Size().Y; y++ {
 			for x := 0; x < img.Bounds().Size().X; x++ {
 				c1, _ := colorful.MakeColor(img.At(x, y))
@@ -111,8 +120,7 @@ func greenscreen(img *image.RGBA, bg []image.Image) {
 					}
 				*/
 
-				dist := c1.DistanceLab(c2)
-				if dist < bgDist {
+				if c1.DistanceLab(c2) < dist {
 					img.Set(x, y, image.Transparent)
 				}
 			}

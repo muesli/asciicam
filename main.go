@@ -11,16 +11,18 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/blackjack/webcam"
 	"github.com/lucasb-eyer/go-colorful"
 	"github.com/muesli/termenv"
+	"github.com/nfnt/resize"
 	"golang.org/x/term"
 )
 
 const (
-	pxWidth  = 320 // requested image width
-	pxHeight = 240 // requested image height
+// pxWidth  = 320 // requested image width
+// pxHeight = 240 // requested image height
 )
 
 var (
@@ -56,8 +58,10 @@ func run(ctx context.Context) error {
 	usecol := flag.String("color", "", "Use single color")
 	w := flag.Uint("width", 0, "output width")
 	h := flag.Uint("height", 0, "output height")
-	flag.Parse()
+	camWidth := flag.Uint("camWidth", 320, "cam input width")
+	camHeight := flag.Uint("camHeight", 180, "cam input height")
 
+	flag.Parse()
 	if *usecol != "" {
 		c, err := colorful.Hex(*usecol)
 		if err != nil {
@@ -105,7 +109,7 @@ func run(ctx context.Context) error {
 	for k, v := range formats {
 		fmt.Println(k, v)
 		if strings.Contains(v, "YUYV") {
-			f, w, h, err := cam.SetImageFormat(k, uint32(pxWidth), uint32(pxHeight))
+			f, w, h, err := cam.SetImageFormat(k, uint32(*camWidth), uint32(*camHeight))
 			if err != nil {
 				return fmt.Errorf("failed to set image format: %w", err)
 			}
@@ -119,9 +123,9 @@ func run(ctx context.Context) error {
 		return fmt.Errorf("failed to start streaming: %w", err)
 	}
 
-	var bg []image.Image
+	var bg image.Image
 	if !*gen && *screen {
-		bg, err = loadBgSamples(*sample)
+		bg, err = loadBgSamples(*sample, width, height)
 		if err != nil {
 			return fmt.Errorf("could not load background samples: %w", err)
 		}
@@ -157,7 +161,7 @@ func run(ctx context.Context) error {
 		if len(frame) == 0 {
 			continue
 		}
-		img := frameToImage(frame, width, height)
+		img := frameToImage(frame, *camWidth, *camHeight)
 
 		// generate background sample data
 		if *gen {
@@ -176,6 +180,9 @@ func run(ctx context.Context) error {
 			}
 		}
 
+		// resize for further processing
+		img = resize.Resize(width, height, img, resize.Bilinear).(*image.RGBA)
+
 		// virtual green screen
 		if !*gen && *screen {
 			greenscreen(img, bg, *screenDist)
@@ -184,10 +191,12 @@ func run(ctx context.Context) error {
 		// convert frame to ascii/ansi
 		var s string
 		if *ansi {
-			s = imageToANSI(width, height, img)
+			s = imageToANSI(width, height, p, img)
 		} else {
 			s = imageToAscii(width, height, p, img)
 		}
+
+		// render
 		termenv.MoveCursor(0, 0)
 		fmt.Fprint(os.Stdout, s)
 	}

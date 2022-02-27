@@ -17,7 +17,7 @@ import (
 )
 
 func frameToImage(frame []byte, width, height uint) *image.RGBA {
-	yuyv := image.NewYCbCr(image.Rect(0, 0, int(pxWidth), int(pxHeight)), image.YCbCrSubsampleRatio422)
+	yuyv := image.NewYCbCr(image.Rect(0, 0, int(width), int(height)), image.YCbCrSubsampleRatio422)
 	for i := range yuyv.Cb {
 		ii := i * 4
 		yuyv.Y[i*2] = frame[ii]
@@ -27,10 +27,9 @@ func frameToImage(frame []byte, width, height uint) *image.RGBA {
 
 	}
 
-	cimg := resize.Resize(width, height, yuyv, resize.Bicubic)
-	b := cimg.Bounds()
+	b := yuyv.Bounds()
 	img := image.NewRGBA(image.Rect(0, 0, b.Dx(), b.Dy()))
-	draw.Draw(img, img.Bounds(), cimg, b.Min, draw.Src)
+	draw.Draw(img, img.Bounds(), yuyv, b.Min, draw.Src)
 
 	return img
 }
@@ -71,29 +70,25 @@ func imageToAscii(width, height uint, p termenv.Profile, img image.Image) string
 	return strings.Join(rawCharValues, "")
 }
 
-func imageToANSI(width, height uint, img image.Image) string {
-	img = resize.Thumbnail(width, height*2-4, img, resize.Lanczos3)
+func imageToANSI(width, height uint, p termenv.Profile, img image.Image) string {
 	b := img.Bounds()
 	w := b.Max.X
 	h := b.Max.Y
-	p := termenv.ColorProfile()
+
 	str := strings.Builder{}
 	for y := 0; y < h; y += 2 {
-		for x := w; x < int(width); x = x + 2 {
+		for x := w; x < int(width); x += 2 {
 			str.WriteString(" ")
 		}
 		for x := 0; x < w; x++ {
-			c1, _ := colorful.MakeColor(img.At(x, y))
-			color1 := p.Color(c1.Hex())
-			c2, _ := colorful.MakeColor(img.At(x, y+1))
-			color2 := p.Color(c2.Hex())
 			str.WriteString(termenv.String("▀").
-				Foreground(color1).
-				Background(color2).
+				Foreground(p.FromColor(img.At(x, y))).
+				Background(p.FromColor(img.At(x, y+1))).
 				String())
 		}
 		str.WriteString("\n")
 	}
+
 	return str.String()
 }
 
@@ -128,21 +123,20 @@ func greenscreen(img *image.RGBA, bg []image.Image, dist float64) {
 	}
 }
 
-func loadBgSamples(path string) ([]image.Image, error) {
-	var bg []image.Image
-	for i := 40; i < 41; i++ {
-		b, err := ioutil.ReadFile(fmt.Sprintf("%s/%d.png", path, i))
-		if err != nil {
-			return nil, err
-		}
-
-		img, err := png.Decode(bytes.NewReader(b))
-		if err != nil {
-			return nil, err
-		}
-
-		bg = append(bg, img)
+func loadBgSamples(path string, width, height uint) (image.Image, error) {
+	//TODO: take average of sample set
+	// for i := 40; i < 41; i++ {
+	i := 40
+	b, err := ioutil.ReadFile(fmt.Sprintf("%s/%d.png", path, i))
+	if err != nil {
+		return nil, err
 	}
 
-	return bg, nil
+	img, err := png.Decode(bytes.NewReader(b))
+	if err != nil {
+		return nil, err
+	}
+
+	return resize.Resize(width, height, img, resize.Bilinear).(*image.RGBA), nil
+	// }
 }

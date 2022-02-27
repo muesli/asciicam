@@ -124,6 +124,7 @@ func run(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("failed to start streaming: %w", err)
 	}
+	defer cam.StopStreaming() //nolint:errcheck
 
 	var bg image.Image
 	if !*gen && *screen {

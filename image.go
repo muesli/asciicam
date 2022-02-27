@@ -55,8 +55,14 @@ func imageToAscii(width, height uint, p termenv.Profile, img image.Image) string
 		for j := 0; j < int(width); j++ {
 			pixel := color.NRGBAModel.Convert(img.At(j, i))
 
-			s := termenv.String(string(pixelToASCII(pixel))).
-				Foreground(p.FromColor(pixel))
+			s := termenv.String(string(pixelToASCII(pixel)))
+
+			_, _, _, a := col.RGBA()
+			if a > 0 {
+				s = s.Foreground(p.FromColor(col))
+			} else {
+				s = s.Foreground(p.FromColor(pixel))
+			}
 			rawCharValues = append(rawCharValues, s.String())
 		}
 		rawCharValues = append(rawCharValues, "\n")

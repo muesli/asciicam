@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"image"
+	"image/color"
 	"image/png"
 	"os"
 	"os/signal"
@@ -12,6 +13,7 @@ import (
 	"syscall"
 
 	"github.com/blackjack/webcam"
+	"github.com/lucasb-eyer/go-colorful"
 	"github.com/muesli/termenv"
 	"golang.org/x/term"
 )
@@ -23,6 +25,7 @@ const (
 )
 
 var (
+	col    = color.Color(color.RGBA{0, 0, 0, 0}) // if alpha is 0, use truecolor
 	pixels = []rune{' ', '.', ',', ':', ';', 'i', '1', 't', 'f', 'L', 'C', 'G', '0', '8', '@'}
 )
 
@@ -50,10 +53,19 @@ func run(ctx context.Context) error {
 	gen := flag.Bool("gen", false, "Generate a new background")
 	screen := flag.Bool("greenscreen", false, "Use greenscreen")
 	ansi := flag.Bool("ansi", false, "Use ANSI")
+	usecol := flag.String("color", "", "Use single color")
 	w := flag.Uint("width", 0, "output width")
 	h := flag.Uint("height", 0, "output height")
 	flag.Parse()
 
+	if *usecol != "" {
+		c, err := colorful.Hex(*usecol)
+		if err != nil {
+			return fmt.Errorf("invalid color: %v", err)
+		}
+
+		col = c
+	}
 	height := *h // height of the terminal output
 	width := *w  // width of the terminal output
 
@@ -115,10 +127,9 @@ func run(ctx context.Context) error {
 		}
 	}
 
+	p := termenv.EnvColorProfile()
 	termenv.HideCursor()
 	defer termenv.ShowCursor()
-	p := termenv.EnvColorProfile()
-
 	termenv.AltScreen()
 	defer termenv.ExitAltScreen()
 

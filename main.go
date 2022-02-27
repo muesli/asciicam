@@ -9,6 +9,7 @@ import (
 	"image/png"
 	"os"
 	"os/signal"
+	"runtime"
 	"strings"
 	"syscall"
 	"time"
@@ -31,6 +32,11 @@ var (
 )
 
 func main() {
+	if runtime.GOOS != "linux" {
+		fmt.Fprintln(os.Stderr, "asciicam only works on Linux")
+		os.Exit(1)
+	}
+
 	// graceful shutdown on SIGINT, SIGTERM
 	ctx, cancel := context.WithCancel(context.Background())
 	sigs := make(chan os.Signal, 1)

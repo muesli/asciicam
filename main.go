@@ -119,6 +119,7 @@ func run(ctx context.Context) error {
 	}
 
 	// start streaming
+	_ = cam.SetBufferCount(1)
 	err = cam.StartStreaming()
 	if err != nil {
 		return fmt.Errorf("failed to start streaming: %w", err)

@@ -60,6 +60,7 @@ func run(ctx context.Context) error {
 	h := flag.Uint("height", 0, "output height")
 	camWidth := flag.Uint("camWidth", 320, "cam input width")
 	camHeight := flag.Uint("camHeight", 180, "cam input height")
+	showFPS := flag.Bool("fps", false, "Show FPS")
 
 	flag.Parse()
 	if *usecol != "" {
@@ -137,6 +138,12 @@ func run(ctx context.Context) error {
 	termenv.AltScreen()
 	defer termenv.ExitAltScreen()
 
+	// seed fps counter
+	var fps []float64
+	for i := 0; i < 10; i++ {
+		fps = append(fps, 0)
+	}
+
 	i := 0
 	for {
 		if ctx.Err() != nil {
@@ -188,6 +195,7 @@ func run(ctx context.Context) error {
 			greenscreen(img, bg, *screenDist)
 		}
 
+		now := time.Now()
 		// convert frame to ascii/ansi
 		var s string
 		if *ansi {
@@ -199,5 +207,19 @@ func run(ctx context.Context) error {
 		// render
 		termenv.MoveCursor(0, 0)
 		fmt.Fprint(os.Stdout, s)
+
+		if *showFPS {
+			for i := len(fps) - 1; i > 0; i-- {
+				fps[i] = fps[i-1]
+			}
+			fps[0] = float64(time.Second / time.Since(now))
+
+			var fpsa float64
+			for _, f := range fps {
+				fpsa += f
+			}
+
+			fmt.Printf("FPS: %.0f", fpsa/float64(len(fps)))
+		}
 	}
 }

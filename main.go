@@ -21,11 +21,6 @@ import (
 	"golang.org/x/term"
 )
 
-const (
-// pxWidth  = 320 // requested image width
-// pxHeight = 240 // requested image height
-)
-
 var (
 	col    = color.Color(color.RGBA{0, 0, 0, 0}) // if alpha is 0, use truecolor
 	pixels = []rune{' ', '.', ',', ':', ';', 'i', '1', 't', 'f', 'L', 'C', 'G', '0', '8', '@'}

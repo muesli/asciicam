@@ -36,10 +36,10 @@ func frameToImage(frame []byte, width, height uint) *image.RGBA {
 
 func pixelToASCII(pixel color.Color) rune {
 	r2, g2, b2, a2 := pixel.RGBA()
-	r := uint(r2 / 257)
-	g := uint(g2 / 257)
-	b := uint(b2 / 257)
-	a := uint(a2 / 257)
+	r := uint(r2 / 256)
+	g := uint(g2 / 256)
+	b := uint(b2 / 256)
+	a := uint(a2 / 256)
 
 	intensity := (r + g + b) * a / 255
 	precision := float64(255 * 3 / (len(pixels) - 1))
@@ -72,15 +72,10 @@ func imageToAscii(width, height uint, p termenv.Profile, img image.Image) string
 
 func imageToANSI(width, height uint, p termenv.Profile, img image.Image) string {
 	b := img.Bounds()
-	w := b.Max.X
-	h := b.Max.Y
 
 	str := strings.Builder{}
-	for y := 0; y < h; y += 2 {
-		for x := w; x < int(width); x += 2 {
-			str.WriteString(" ")
-		}
-		for x := 0; x < w; x++ {
+	for y := 0; y < b.Max.Y; y += 2 {
+		for x := 0; x < b.Max.X; x++ {
 			str.WriteString(termenv.String("▀").
 				Foreground(p.FromColor(img.At(x, y))).
 				Background(p.FromColor(img.At(x, y+1))).

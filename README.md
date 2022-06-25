@@ -32,7 +32,7 @@ $ asciicam -greenscreen=true -sample bgdata/ -threshold=0.12
 $ asciicam -fps=true
 ```
 
-# Screenshots
+## Screenshots
 
 ANSI mode:
 

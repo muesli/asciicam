@@ -1,6 +1,6 @@
 # asciicam
 
-Displays your webcam... on the terminal
+Displays your webcam... on the terminal.
 
 ## Usage
 
@@ -31,3 +31,13 @@ $ asciicam -greenscreen=true -sample bgdata/ -threshold=0.12
 # show FPS counter
 $ asciicam -fps=true
 ```
+
+# Screenshots
+
+ANSI mode:
+
+![ANSI mode](/screenshots/asciicam_ansi.png?raw=true)
+
+ASCII mode:
+
+![ASCII mode](/screenshots/asciicam_ascii.png?raw=true)

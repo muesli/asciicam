@@ -104,7 +104,7 @@ func run(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	defer cam.Close()
+	defer cam.Close() //nolint:errcheck
 
 	// find available yuyv format
 	formats := cam.GetSupportedFormats()
@@ -150,7 +150,7 @@ func run(ctx context.Context) error {
 	i := 0
 	for {
 		if ctx.Err() != nil {
-			return nil
+			return nil //nolint:nilerr
 		}
 
 		err = cam.WaitForFrame(1)
@@ -182,7 +182,7 @@ func run(ctx context.Context) error {
 			if err := png.Encode(f, img); err != nil {
 				return fmt.Errorf("failed to encode sample frame: %w", err)
 			}
-			f.Close()
+			_ = f.Close()
 
 			i++
 			if i > 100 {
@@ -204,7 +204,7 @@ func run(ctx context.Context) error {
 		if *ansi {
 			s = imageToANSI(width, height, p, img)
 		} else {
-			s = imageToAscii(width, height, p, img)
+			s = imageToASCII(width, height, p, img)
 		}
 
 		// render

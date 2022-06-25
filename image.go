@@ -24,7 +24,6 @@ func frameToImage(frame []byte, width, height uint) *image.RGBA {
 		yuyv.Y[i*2+1] = frame[ii+2]
 		yuyv.Cb[i] = frame[ii+1]
 		yuyv.Cr[i] = frame[ii+3]
-
 	}
 
 	b := yuyv.Bounds()
@@ -48,7 +47,7 @@ func pixelToASCII(pixel color.Color) rune {
 	return pixels[v]
 }
 
-func imageToAscii(width, height uint, p termenv.Profile, img image.Image) string {
+func imageToASCII(width, height uint, p termenv.Profile, img image.Image) string {
 	str := strings.Builder{}
 
 	for i := 0; i < int(height); i++ {
@@ -70,7 +69,7 @@ func imageToAscii(width, height uint, p termenv.Profile, img image.Image) string
 	return str.String()
 }
 
-func imageToANSI(width, height uint, p termenv.Profile, img image.Image) string {
+func imageToANSI(_, _ uint, p termenv.Profile, img image.Image) string {
 	b := img.Bounds()
 
 	str := strings.Builder{}

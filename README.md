@@ -2,6 +2,12 @@
 
 Displays your webcam... on the terminal.
 
+## Build
+
+```bash
+$ go build
+```
+
 ## Usage
 
 ```bash
